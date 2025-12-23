@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../errors/app-error";
 
 interface CreateUserDTO {
   name: string;
@@ -13,7 +14,7 @@ export class UserService {
     });
 
     if (userExists) {
-      throw new Error("Email already in use");
+      throw new AppError("Email already in use", 409);
     }
 
     const user = await prisma.user.create({
@@ -43,7 +44,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new Error("User not found");
+      throw new AppError("User not found", 404);
     }
 
     return user;
