@@ -23,4 +23,13 @@ export class UserController {
 
     return res.json(user);
   }
+
+  async me(req: Request, res: Response) {
+    const authReq = req as any;
+
+    const user = await userService.findById(authReq.user.id);
+
+    return res.json(user);
+  }
+
 }
