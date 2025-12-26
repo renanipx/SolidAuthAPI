@@ -9,15 +9,15 @@ interface CreateUserDTO {
 
 export class UserService {
   async create(data: CreateUserDTO) {
-    const userExists = await prisma.user.findUnique({
+    const emailExists = await prisma.user.findUnique({
       where: { email: data.email },
     });
 
-    if (userExists) {
+    if (emailExists) {
       throw new AppError("Email already in use", 409);
     }
 
-    const user = await prisma.user.create({
+    return prisma.user.create({
       data,
       select: {
         id: true,
@@ -27,8 +27,6 @@ export class UserService {
         createdAt: true,
       },
     });
-
-    return user;
   }
 
   async findById(id: string) {
