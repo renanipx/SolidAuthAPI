@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
+import { AuthRequest } from "../../middlewares/auth.middleware";
 
 const userService = new UserService();
 

@@ -1,38 +1,45 @@
 import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 import { AppError } from "../errors/app-error";
-import { prisma } from "../lib/prisma";
 
-interface AuthRequest extends Request {
+interface TokenPayload {
+  sub: string;
+  role: string;
+}
+
+export interface AuthRequest extends Request {
   user?: {
     id: string;
     role: string;
   };
 }
 
-export async function authMiddleware(
+export function authMiddleware(
   req: AuthRequest,
   _res: Response,
   next: NextFunction
 ) {
-  const userId = req.headers["x-user-id"];
+  const authHeader = req.headers.authorization;
 
-  if (!userId || typeof userId !== "string") {
+  if (!authHeader) {
     throw new AppError("Unauthorized", 401);
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      role: true,
-    },
-  });
+  const [, token] = authHeader.split(" ");
 
-  if (!user) {
-    throw new AppError("Unauthorized", 401);
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as TokenPayload;
+
+    req.user = {
+      id: decoded.sub,
+      role: decoded.role,
+    };
+
+    return next();
+  } catch {
+    throw new AppError("Invalid token", 401);
   }
-
-  req.user = user;
-
-  next();
 }
