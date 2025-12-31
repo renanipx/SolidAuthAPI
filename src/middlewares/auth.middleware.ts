@@ -27,6 +27,10 @@ export function authMiddleware(
 
   const [, token] = authHeader.split(" ");
 
+  if (!token) {
+    throw new AppError("Unauthorized", 401);
+  }
+
   try {
     const decoded = jwt.verify(
       token,
