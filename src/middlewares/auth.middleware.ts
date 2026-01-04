@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 import { AppError } from "../errors/app-error";
+import { verifyToken } from "../utils/jwt";
 
 interface TokenPayload {
   sub: string;
@@ -32,10 +32,7 @@ export function authMiddleware(
   }
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    ) as TokenPayload;
+    const decoded = verifyToken(token);
 
     req.user = {
       id: decoded.sub,
@@ -44,6 +41,6 @@ export function authMiddleware(
 
     return next();
   } catch {
-    throw new AppError("Invalid token", 401);
+    throw new AppError("Invalid or expired token", 401);
   }
 }

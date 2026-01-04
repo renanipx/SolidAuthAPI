@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../errors/app-error";
+import { generateToken } from "../../utils/jwt";
 
 export class AuthService {
   async login(email: string, password: string) {
@@ -22,16 +22,10 @@ export class AuthService {
       throw new AppError("Invalid credentials", 401);
     }
 
-    const token = jwt.sign(
-      {
-        sub: user.id,
-        role: user.role,
-      },
-      process.env.JWT_SECRET as string,
-      {
-        expiresIn: process.env.JWT_EXPIRES_IN,
-      }
-    );
+    const token = generateToken({
+      sub: user.id,
+      role: user.role,
+    });
 
     return {
       accessToken: token,
