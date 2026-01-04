@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { AppError } from "../errors/app-error";
 
 interface TokenPayload {
@@ -6,17 +6,15 @@ interface TokenPayload {
   role: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET as string;;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
+const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN!;
 
-if (!JWT_SECRET || !JWT_EXPIRES_IN) {
-  throw new Error("JWT environment variables are not defined");
-}
+const signOptions: SignOptions = {
+  expiresIn: JWT_EXPIRES_IN as SignOptions["expiresIn"],
+};
 
 export function generateToken(payload: TokenPayload) {
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN,
-  });
+  return jwt.sign(payload, JWT_SECRET, signOptions);
 }
 
 export function verifyToken(token: string): TokenPayload {
