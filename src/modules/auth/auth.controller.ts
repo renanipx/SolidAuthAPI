@@ -11,4 +11,11 @@ export class AuthController {
 
     return res.json(token);
   }
+  async refresh(req: Request, res: Response) {
+    const { refreshToken } = req.body;
+
+    const tokens = await authService.refresh(refreshToken);
+
+    return res.json(tokens);
+  }
 }
