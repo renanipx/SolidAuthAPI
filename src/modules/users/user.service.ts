@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../errors/app-error";
-
+import bcrypt from "bcryptjs";
+import { Role } from "@prisma/client";
 export class UserService {
   async create(data: {
     name: string;
@@ -15,8 +16,15 @@ export class UserService {
       throw new AppError("Email already in use", 409);
     }
 
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
     return prisma.user.create({
-      data,
+      data: {
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+        role: Role.USER,
+      },
       select: {
         id: true,
         name: true,
