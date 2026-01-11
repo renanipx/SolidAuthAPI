@@ -45,4 +45,30 @@ export class UserService {
 
     return user;
   }
+
+  async list() {
+    return prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async delete(id: string) {
+    const userExists = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!userExists) {
+      throw new AppError("User not found", 404);
+    }
+
+    await prisma.user.delete({
+      where: { id },
+    });
+  }
 }

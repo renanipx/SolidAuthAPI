@@ -1,9 +1,10 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import { AppError } from "../errors/app-error";
+import { UserRole } from "../middlewares/auth.middleware";
 
 interface TokenPayload {
   sub: string;
-  role: string;
+  role: UserRole;
 }
 
 const JWT_SECRET = process.env.JWT_SECRET!;

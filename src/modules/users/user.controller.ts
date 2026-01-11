@@ -14,4 +14,17 @@ export class UserController {
     const user = await userService.findById(req.user!.id);
     return res.json(user);
   }
+
+  async list(req: any, res: Response) {
+    const users = await userService.list();
+    return res.json(users);
+  }
+
+  async delete(req: any, res: Response) {
+    const { id } = req.params;
+
+    await userService.delete(id);
+
+    return res.status(204).send();
+  }
 }

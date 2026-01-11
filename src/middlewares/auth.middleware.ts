@@ -2,15 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { AppError } from "../errors/app-error";
 import { verifyToken } from "../utils/jwt";
 
-interface TokenPayload {
-  sub: string;
-  role: string;
-}
-
+export type UserRole = "ADMIN" | "USER";
 export interface AuthRequest extends Request {
   user?: {
     id: string;
-    role: string;
+    role: UserRole;
   };
 }
 

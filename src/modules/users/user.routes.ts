@@ -16,12 +16,18 @@ routes.get(
   (req, res) => controller.me(req as any, res)
 );
 
-// --- CREATE
-// routes.get(
-//   "/users",
-//   authMiddleware,
-//   roleMiddleware(["ADMIN"]),
-//   (req, res) => controller.list(req, res)
-// );
+routes.get(
+  "/users",
+  authMiddleware,
+  roleMiddleware(["ADMIN"]),
+  (req, res) => controller.list(req, res)
+);
+
+routes.delete(
+  "/users/:id",
+  authMiddleware,
+  roleMiddleware(["ADMIN"]),
+  (req, res) => controller.delete(req, res)
+);
 
 export { routes as userRoutes };
