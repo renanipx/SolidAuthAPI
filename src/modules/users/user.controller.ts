@@ -15,11 +15,14 @@ export class UserController {
     return res.json(user);
   }
 
-  async list(req: any, res: Response) {
-    const users = await userService.list();
-    return res.json(users);
-  }
+  async list(req: AuthRequest, res: Response) {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
 
+    const result = await userService.list(page, limit);
+
+    return res.json(result);
+  }
   async delete(req: any, res: Response) {
     const { id } = req.params;
 
