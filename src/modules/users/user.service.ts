@@ -2,6 +2,14 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../errors/app-error";
 import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
+
+interface ListUsersParams {
+  page: number;
+  limit: number;
+  role?: Role;
+  email?: string;
+}
+
 export class UserService {
   async create(data: {
     name: string;
@@ -54,11 +62,25 @@ export class UserService {
     return user;
   }
 
-  async list(page: number, limit: number) {
+ async list({ page, limit, role, email }: ListUsersParams) {
     const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (role) {
+      where.role = role;
+    }
+
+    if (email) {
+      where.email = {
+        contains: email,
+        mode: "insensitive",
+      };
+    }
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
+        where,
         skip,
         take: limit,
         select: {
@@ -72,7 +94,7 @@ export class UserService {
           createdAt: "desc",
         },
       }),
-      prisma.user.count(),
+      prisma.user.count({ where }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
