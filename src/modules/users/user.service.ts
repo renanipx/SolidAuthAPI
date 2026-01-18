@@ -2,6 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../errors/app-error";
 import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
+import { logger } from "../../lib/logger";
 
 interface ListUsersParams {
   page: number;
@@ -26,7 +27,7 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    return prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
@@ -41,7 +42,15 @@ export class UserService {
         createdAt: true,
       },
     });
-  }
+
+    logger.info("User created", {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return user;
+  };
 
   async findById(id: string) {
     const user = await prisma.user.findUnique({
@@ -62,7 +71,7 @@ export class UserService {
     return user;
   }
 
- async list({ page, limit, role, email }: ListUsersParams) {
+  async list({ page, limit, role, email }: ListUsersParams) {
     const skip = (page - 1) * limit;
 
     const where: any = {};

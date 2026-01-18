@@ -3,6 +3,7 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../errors/app-error";
 import { generateToken } from "../../utils/jwt";
 import { RefreshTokenService } from "./refresh-token.service";
+import { logger } from "../../lib/logger";
 
 const refreshTokenService = new RefreshTokenService();
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     });
 
     if (!user) {
+      logger.warn("Login failed: user not found", { email });
       throw new AppError("Invalid credentials", 401);
     }
 
@@ -21,8 +23,16 @@ export class AuthService {
     );
 
     if (!passwordMatch) {
+      logger.warn("Login failed: invalid password", {
+        userId: user.id,
+      });
       throw new AppError("Invalid credentials", 401);
     }
+
+    logger.info("User logged in", {
+      userId: user.id,
+      role: user.role,
+    });
 
     const accessToken = generateToken({
       sub: user.id,
